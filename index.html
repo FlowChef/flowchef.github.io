@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Resource Efficient Text-to-Image Diffusion Models.">
+  <meta name="keywords"
+    content="Flow Models, FlowChef, Text-to-Image, Rectified Flow Models, Inverse Problems, Image Editing, Vision, NLP, T2I, Research, Demo, GitHub">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Steering Rectified Flow Models in the Vector Field for Controlled Image Generation</title>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-49GXE91HQ6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-49GXE91HQ6');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <script type="module" src="https://gradio.s3-us-west-2.amazonaws.com/4.8.0/gradio.js"></script>
+
+  <style>
+    #project-previews {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+      padding: 20px;
+    }
+
+    .project {
+      width: 300px;
+      /* Adjust as needed */
+      height: 320px;
+      /* Adjust as needed */
+      border: 1px solid #ddd;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .project img {
+      width: 100%;
+      /* Make image fill the container */
+      height: 200px;
+      /* Adjust height as needed */
+      object-fit: cover;
+    }
+
+    .project h3,
+    .project p {
+      margin: 5px 0;
+    }
+
+    /* Hover effect */
+    .project:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #project-previews a.project {
+      text-decoration: none;
+      /* Remove underline from links */
+      color: inherit;
+      /* Use the parent's text color */
+      display: block;
+      /* Make the anchor tag behave like a block element */
+    }
+
+    #project-previews a.project:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .project {
+      width: 300px;
+      height: 320px;
+      /* Remove the border */
+      border: none;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .carousel .item {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 300px;
+      border: none;
+    }
+
+    .carousel .item img {
+      max-width: 100%;
+      height: 100%;
+      /* Make the image fill the container's height */
+      object-fit: cover;
+      /* Ensures the image covers the container while maintaining aspect ratio */
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      bulmaCarousel.attach('#results-carousel', {
+        slidesToScroll: 1,
+        slidesToShow: 1,
+        infinite: true,
+      });
+    });
+  </script>
+
+</head>
+
+<body>
+
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="navbar-menu">
+      <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+        <a class="navbar-item" href="https://maitreyapatel.com/">
+          <span class="icon">
+            <i class="fas fa-home"></i>
+          </span>
+        </a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link">
+            More Research
+          </a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="https://eclipse-t2i.github.io/Lambda-ECLIPSE/">
+              &lambda;-ECLIPSE (Personalized T2I)
+            </a>
+            <a class="navbar-item" href="https://tripletclip.github.io/">
+              TripletCLIP (Compositional CLIP)
+            </a>
+            <a class="navbar-item" href="https://wouaf.vercel.app">
+              WOUAF (Secure T2I)
+            </a>
+            <a class="navbar-item" href="https://eclipse.vercel.app/">
+              ECLIPSE (Efficient T2I)
+            </a>
+            <a class="navbar-item" href="https://conceptbed.github.io">
+              ConceptBed (T2I Evaluations)
+            </a>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </nav>
+
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">
+              <p style="font-size:xx-large;">
+                Steering Rectified Flow Models in the Vector Field for Controlled Image Generation</p>
+            </h1>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a href="https://maitreyapatel.com" style="color:#008AD7;font-weight:normal;">Maitreya
+                  Patel</a>,
+              </span>
+              <span class="author-block">
+                <a href="#" style="color:#f68946; font-weight:normal">Song Wen</a>,
+              </span>
+              <span class="author-block">
+                <a href="https://scholar.google.com/citations?user=a7VNhCIAAAAJ"
+                  style="color:#f68946; font-weight:normal">Dimitris N. Metaxas</a>,
+              </span>
+              <span class="author-block">
+                <a href="https://yezhouyang.engineering.asu.edu/" style="color:#008AD7;font-weight:normal;">Yezhou
+                  Yang</a>
+              </span>
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><b style="color:#008AD7; font-weight:normal">&#x25B6 </b>Arizona State
+                University</span>;
+              <span class="author-block"><b style="color:#f68946; font-weight:normal">&#x25B6 </b>Rutgers
+                University</span>;
+            </div>
+
+            <!-- <br>
+            <div class="is-size-3 publication-authors">
+              <b>CVPR 2024</b>
+            </div>
+            <br> -->
+
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <!-- PDF Link. -->
+                <span class="link-block">
+                  <a href="#" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                    </span>
+                    <span>PDF</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="#" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                    </span>
+                    <span>arXiv (soon)</span>
+                  </a>
+                </span>
+                <!-- Code Link. -->
+                <span class="link-block">
+                  <a href="https://github.com/eclipse-t2i/eclipse-inference"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code</span>
+                  </a>
+                </span>
+                <!-- Huggingface -->
+                <span class="link-block">
+                  <a href="https://huggingface.co/FlowChef" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="ai">🤗</i>
+                    </span>
+                    <span>Demo</span>
+                  </a>
+                </span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hero teaser">
+    <div class="container is-max-desktop">
+      <div class="hero-body">
+        <center>
+          <img src="./static/images/teaser.png" width="70%">
+        </center>
+        <h2 class="subtitle has-text-centered">
+          <span class="dnerf"></span>FlowChef steers the trajectory of Rectified Flow Models during inference to
+          tackle linear inverse problems, image editing,
+          and classifier guidance.
+        </h2>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="footer">
+    <div class="container is-max-desktop">
+      <!-- Abstract. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p>
+              Diffusion models (DMs) excel in photorealism, image editing, and solving inverse problems, aided by
+              classifier-free guidance and image inversion techniques.
+              However, rectified flow models (RFMs) remain underexplored for these tasks.
+              Existing DM-based methods often require additional training, lack generalization to pretrained latent
+              models, underperform, and demand significant computational resources due to extensive backpropagation
+              through ODE solvers and inversion processes.
+              In this work, we first develop a theoretical and empirical understanding of the vector field dynamics of
+              RFMs in efficiently guiding the denoising trajectory.
+              Our findings reveal that we can navigate the vector field in a deterministic and gradient-free manner.
+              Utilizing this property, we propose <b style="font-size: large;"><i>FlowChef</i></b>, which leverages the
+              vector field to solve controlled image
+              generation tasks by jumping between nearby trajectories until convergence, facilitated by gradient
+              skipping.
+              <b style="font-size: large;"><i>FlowChef</i></b> is a unified framework for controlled image generation
+              that, for the first time, simultaneously
+              addresses classifier guidance, linear inverse problems, and image editing without the need for extra
+              training, inversion, or intensive backpropagation.
+              Finally, we perform extensive evaluations and show that <b style="font-size: large;"><i>FlowChef</i></b>
+              significantly outperforms baselines in
+              terms of performance, memory, and time requirements, achieving new state-of-the-art results.
+
+              <!-- <br>
+              <br>
+
+              <img src="./static/images/results.png">
+            <h4 class="subtitle has-text-centered">
+              <span class="dnerf"></span>FlowChef steers the trajectory of Rectified Flow Models during inference to
+              tackle linear inverse problems, image editing,
+              and classifier guidance.
+            </h4> -->
+
+          </div>
+        </div>
+      </div>
+      <!--/ Abstract. -->
+
+      <!-- <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <img src="./static/images/figs/fig4-min.png">
+          <h2 class="subtitle has-text-centered">
+            Uncurated images of the original and fingerprinted Stable Diffusion models on MS-COCO and LAION Aesthetics.
+            Pixel-wise differences are multiplied by a factor of 5 for a better view. </h2>
+        </div>
+      </div>
+
+      <br>
+
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <img src="./static/images/figs/fig5.png">
+          <h2 class="subtitle has-text-centered">
+            Robust user attribution against image post-processes. </h2>
+        </div>
+      </div> -->
+
+  </section>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <!-- Abstract. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Method</h2>
+          <!-- <div class="content has-text-justified"> -->
+          <img src="./static/images/method.png">
+          <!-- <h2 class="subtitle has-text-centered">
+            High-level overview of FlowChef.
+          </h2> -->
+          <p>
+            A short intro to the method.
+          </p>
+        </div>
+        <!-- </div> -->
+      </div>
+    </div>
+  </section>
+
+  <section class="hero is-light is-small">
+    <div class="hero-body">
+      <div class="container">
+        <h3 class="title is-3 has-text-centered">Inversion-free Image Editing</h3>
+        <div id="results-carousel" class="carousel results-carousel">
+          <div class="item">
+            <img src="static/images/qualitatives/editing/Picture1.png">
+          </div>
+          <div class="item">
+            <img src="static/images/qualitatives/editing/Picture2.png">
+          </div>
+          <div class="item">
+            <img src="static/images/qualitatives/editing/Picture3.png">
+          </div>
+          <div class="item">
+            <img src="static/images/qualitatives/editing/Picture8.png">
+          </div>
+          <div class="item">
+            <img src="static/images/qualitatives/editing/Picture5.png">
+          </div>
+          <div class="item">
+            <img src="static/images/qualitatives/editing/Picture6.png">
+          </div>
+          <div class="item">
+            <img src="static/images/qualitatives/editing/Picture7.png">
+          </div>
+          <div class="item">
+            <img src="static/images/qualitatives/editing/Picture4.png">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hero is-light is-small">
+    <div class="hero-body">
+      <div class="container">
+        <h3 class="title is-3 has-text-centered">Latent Inverse Problems</h3>
+        <div id="results-carousel" class="carousel results-carousel">
+          <div class="item" style="height: 250px;">
+            <img src="static/images/qualitatives/ip/Picture1.png">
+          </div>
+          <div class="item" style="height: 250px;">
+            <img src="static/images/qualitatives/ip/Picture2.png">
+          </div>
+          <div class="item" style="height: 250px;">
+            <img src="static/images/qualitatives/ip/Picture3.png">
+          </div>
+          <div class="item" style="height: 250px;">
+            <img src="static/images/qualitatives/ip/Picture4.png">
+          </div>
+          <div class="item" style="height: 250px;">
+            <img src="static/images/qualitatives/ip/Picture5.png">
+          </div>
+          <div class="item" style="height: 250px;">
+            <img src="static/images/qualitatives/ip/Picture6.png">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- <section class="footer">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">ECLIPSE Demo</h2>
+          <div class="content has-text-justified">
+            <gradio-app src="https://eclipse-community-eclipse-kandinsky-v2-2.hf.space"></gradio-app>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section> -->
+
+
+
+  </section>
+
+
+
+
+
+
+
+
+  <section class="footer" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>@article{patel2024flowchef,
+        title={Steering Rectified Flow Models in the Vector Field for Controlled Image Generation},
+        author={Patel, Maitreya and Wen, Song and Metaxas, Dimitris N. and Yang, Yezhou},
+        journal={arXiv preprint arXiv:xxxxxxxx},
+        year={2024}
+      }</code></pre>
+    </div>
+  </section>
+
+  <!-- Project Previews Section -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <!-- Abstract. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Relevant Projects</h2>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="project-previews">
+    <a href="https://wouaf.vercel.app/" class="project">
+      <img src="./static/images/wouaf.png">
+      <h3 class="title is-5">WOUAF</h3>
+      <p>Weight Modulation for User Attribution and Fingerprinting in T2I Models. </p>
+    </a>
+
+    <a href="https://conceptbed.github.io/" class="project">
+      <img src="./static/images/conceptbed.png">
+      <h3 class="title is-5">ConceptBed</h3>
+      <p>Evaluating Concept Learning Abilities of T2I Models</p>
+    </a>
+  </section>
+
+
+
+
+  <footer class="footer">
+    <div class="container">
+      <div class="content has-text-centered">
+        <a class="icon-link" href="#">
+          <i class="fas fa-file-pdf"></i>
+        </a>
+        <a class="icon-link" href="https://github.com/maitreyapatel" class="external-link" disabled>
+          <i class="fab fa-github"></i>
+        </a>
+      </div>
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <center>
+              <p>
+                This website template is take from <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>
+                and
+                modified by <a href="https://maitreyapatel.com">Maitreya Patel</a>.
+              </p>
+            </center>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+
+</html>
