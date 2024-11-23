@@ -1,14 +1,15 @@
-# WOUAF
+# FlowChef Website
 
-This is the repository that contains the source code for the [ECLIPSE Project](https://eclipse-t2i.vercel.app/).
+This is the repository that contains the source code for the [FlowChef Project Page](https://flowchef.github.io/).
 
-If you find ECLIPSE useful for your work please cite:
+If you find FlowChef useful for your work please cite:
 ```
-@article{patel2023eclipse,
-    author = {Patel, Maitreya and Kim, Changhoon and Cheng, Sheng and Baral, Chitta and Yang, Yezhou},
-    title = {ECLIPSE: A Resource-Efficient Text-to-Image Prior for Image Generations},
-    year = {2023},
-}
+@article{patel2024flowchef,
+        title={Steering Rectified Flow Models in the Vector Field for Controlled Image Generation},
+        author={Patel, Maitreya and Wen, Song and Metaxas, Dimitris N. and Yang, Yezhou},
+        journal={arXiv preprint arXiv:xxxxxxxx},
+        year={2024}
+      }
 ```
 
 # Website License
